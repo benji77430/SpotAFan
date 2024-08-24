@@ -3,7 +3,7 @@
 
 
 
-music downloader and listener using google youtube data API V3
+music downloader and listener using google youtube data API V3 
 
 
 ![image](https://github.com/user-attachments/assets/2f61f9f1-67f2-42ed-8082-cbc4f27e4964)
@@ -19,3 +19,4 @@ defender smart screen detect it as malicious but you can see the source code the
 
 if you prefere to use the python version don't forget to install the librairies with 
 ```setup.bat``` or using ```pip install -r requirements.txt```
+SpotAFan is also crossplatform (windows, macos and linux) it run without ad with easy to use interface
