@@ -43,7 +43,7 @@ class Colors:
     NEGATIVE = "\033[7m"
     CROSSED = "\033[9m"
     END = "\033[0m"
-
+UPLOAD = ""
 CONFIG = []
 
 home_dir = os.path.expanduser("~")
@@ -79,15 +79,20 @@ def just_log(log):
 settings_file = 'settings.json'
 if not os.path.exists(settings_file):
     log(f'{Colors.RED}config file not exist creating a new one ! {Colors.END}')
-
+    upload = input('do you want to automaticaly send report when the app crash ? (y/N) ')
+    if "y" in upload.lower():
+        upload = "ok"
+    else:
+        upload = "no"
     path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{MUSIC_PATH}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter path to install music (nothing for default music folder) ─╼ ')
     if path == "":
         path = MUSIC_PATH
     API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{path}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter your google youtube data V3 api key ─╼ ')
     settings = {
         "path": path,
-        "api_key": API_KEY
-    }
+        "api_key": API_KEY,
+        'upload': upload
+    } 
     with open(settings_file, 'w') as f:        
         json.dump(settings, f, indent=4)
         CONFIG = [path,API_KEY]    
@@ -98,22 +103,28 @@ else:
             settings = json.load(f)
             CONFIG.append(settings['path'])
             CONFIG.append(settings['api_key'])
+            UPLOAD = settings['upload']
         log(Colors.GREEN+'configuration loaded succesfully ! '+Colors.END)
         log(Colors.GREEN+'changing configuration ! '+Colors.END)
     except Exception as e:
         print(Colors.RED+'loading error : '+str(e)+Colors.END)
+        upload = input('do you want to automaticaly send report when the app crash ? (y/N) ')
+        if "y" in upload.lower():
+            upload = "ok"
+        else:
+            upload = "no"
         path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{MUSIC_PATH}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter path to install music (nothing for default music folder) ─╼ ')
         if path == "":
             path = MUSIC_PATH
-        API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{path}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} lease enter your google youtube data V3 api key ─╼ ')
+        API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{path}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter your google youtube data V3 api key ─╼ ')
         settings = {
             "path": path,
-            "api_key": API_KEY
-        }
+            "api_key": API_KEY,
+            'upload': upload
+        } 
         with open(settings_file, 'w') as f:        
             json.dump(settings, f, indent=4)
             CONFIG = [path,API_KEY]    
-            
 
 def log(log):
     print(f'{log}                                                                                                            ',end='\r')
@@ -169,18 +180,26 @@ def settings(CONFIG):
 {Colors.CYAN}( path ){Colors.END} ─╼ {Colors.BOLD}{Colors.LIGHT_RED}{CONFIG[0]}{Colors.END}
 
 {Colors.CYAN}( API  ){Colors.END} ─╼ {Colors.BOLD}{Colors.LIGHT_RED}{CONFIG[1]}{Colors.END}
+
+{Colors.CYAN}( AUTO REPORT ){Colors.END} ─╼ {Colors.BOLD}{Colors.LIGHT_RED}{str(UPLOAD)}{Colors.END}
 ''')
-    path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter path to install music (nothing for default music folder) > ')
+    upload = input('do you want to automaticaly send report when the app crash ? (y/N) ')
+    if "y" in upload.lower():
+        upload = "ok"
+    else:
+        upload = "no"
+    path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{MUSIC_PATH}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter path to install music (nothing for default music folder) ─╼ ')
     if path == "":
         path = MUSIC_PATH
-    API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter your google youtube data V3 api key > ')
+    API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{path}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter your google youtube data V3 api key ─╼ ')
     settings = {
         "path": path,
-        "api_key": API_KEY
-    }
+        "api_key": API_KEY,
+        'upload': upload
+    } 
     with open(settings_file, 'w') as f:        
         json.dump(settings, f, indent=4)
-        CONFIG = [path,API_KEY]    
+        CONFIG = [path,API_KEY]      
 def ascii(i=random.randint(0,4)):
     ascii =[r"""
   ********                    **       **     ********                   
@@ -458,7 +477,8 @@ def menu():
                 exit()
         except Exception as e:
             just_log(f"error ! {e}")
-            send_report()
+            if UPLOAD == "ok":
+                send_report()
             pass
         
 
