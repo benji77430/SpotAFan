@@ -21,5 +21,7 @@ if you prefere to use the python version don't forget to install the librairies 
 ```setup.bat``` or using ```pip install -r requirements.txt```
 
 > crossplatform (windows, macos and linux)
-> without ad 
+
+> without ad
+
 > friendly interface
