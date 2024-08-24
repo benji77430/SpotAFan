@@ -14,3 +14,5 @@ YOU NEED THE GOOGLE API KEY TO USE THE DOWNLOADER PART OF THE APP
 link of google api : https://developers.google.com/youtube/v3
 
 notice there is auto report function if the app crash for a reason the log file will be send to me automaticaly but you can disable the option 
+
+defender smart screen detect it as malicious but you can see the source code there is nothing to hide
