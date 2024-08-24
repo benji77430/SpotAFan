@@ -1,0 +1,12 @@
+os-sys
+google-api-python-client
+pydub
+requests
+yt-dlp
+platform
+subprocess.run
+random
+base64
+json
+datetime
+getpass
