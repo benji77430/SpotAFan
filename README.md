@@ -19,4 +19,7 @@ defender smart screen detect it as malicious but you can see the source code the
 
 if you prefere to use the python version don't forget to install the librairies with 
 ```setup.bat``` or using ```pip install -r requirements.txt```
-SpotAFan is also crossplatform (windows, macos and linux) it run without ad with friendly interface
+
+> crossplatform (windows, macos and linux)
+> without ad 
+> friendly interface
