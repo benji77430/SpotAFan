@@ -18,6 +18,6 @@ notice there is auto report function if the app crash for a reason the log file 
 defender smart screen detect it as malicious but you can see the source code there is nothing to hide
 
 if you prefere to use the python version don't forget to install the librairies with 
-'''
+```
 pip install -r requirements.txt or using setup.bat
-'''
+```
