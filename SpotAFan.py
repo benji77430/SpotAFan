@@ -7,6 +7,7 @@ import platform
 import subprocess
 import requests
 import yt_dlp
+from translate import Translator
 import random
 import json
 from pydub.playback import play
@@ -16,6 +17,10 @@ import getpass
 # Configuration de l'API YouTube
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 YOUTUBE_API_VERSION = 'v3'
+LANG = 'en'
+def translation(text):
+    translator= Translator(to_lang=LANG)
+    return translator.translate(text)
 
 class Colors:
     """ ANSI color codes """
@@ -53,19 +58,21 @@ system = platform.system()
 
 # Construct the path to the Music directory based on the operating system
 if system == "Windows":
-    print('windows detected !')
+    print(translation('Windows detected !'))
     MUSIC_PATH = os.path.join(home_dir, "Music")
 elif system == "Darwin":  # macOS
     MUSIC_PATH = os.path.join(home_dir, "Musique")
-    print('MacOS detected !')
+    print(translation('MacOS detected !'))
+
 elif system == "Linux":
     MUSIC_PATH = os.path.join(home_dir, "Musique")
-    print('LINUX detected !')
+    print(translation('LINUX detected !'))
+    
 else:
     raise OSError(f"Unsupported operating system: {system}")
 
 def log(log):
-    print(f'{log}                                                                                                            ',end='\r')
+    print(f'{translation(log)}                                                                                                            ',end='\r')
     log = str(log).replace('\033[0;30m','').replace('\033[0;31m','').replace('\033[0;32m','').replace('\033[0;33m','').replace('\033[0;34m','').replace('\033[0;35m','').replace('\033[0;36m','').replace('\033[0;37m','').replace('\033[1;30m','').replace('\033[1;31m','').replace('\033[1;32m','').replace('\033[1;33m','').replace('\033[1;34m','').replace('\033[1;35m','').replace('\033[1;36m','').replace('\033[1;37m','').replace('\033[1m','').replace('\033[2m','').replace('\033[3m','').replace('\033[4m','').replace('\033[5m','').replace('\033[7m','').replace('\033[9m','').replace('\033[0m','')
     write = f""" {datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")} | {log} \n"""
     with open('SpotAFan.log','a', encoding='utf-8') as f:
@@ -78,20 +85,22 @@ def just_log(log):
 
 settings_file = 'settings.json'
 if not os.path.exists(settings_file):
+    LANG = input(translation('enter your lang as fr, en etc.. > '))
     log(f'{Colors.RED}config file not exist creating a new one ! {Colors.END}')
-    upload = input('do you want to automaticaly send report when the app crash ? (y/N) ')
+    upload = input(translation('do you want to automaticaly send report when the app crash ? (y/N) '))
     if "y" in upload.lower():
         upload = "ok"
     else:
         upload = "no"
-    path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{MUSIC_PATH}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter path to install music (nothing for default music folder) ─╼ ')
+    path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{MUSIC_PATH}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('please enter path to install music (nothing for default music folder)')} ─╼ ')
     if path == "":
         path = MUSIC_PATH
-    API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{path}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter your google youtube data V3 api key ─╼ ')
+    API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{path}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('please enter your google youtube data V3 api key')} ─╼ ')
     settings = {
         "path": path,
         "api_key": API_KEY,
-        'upload': upload
+        'upload': upload,
+        'lang': LANG
     } 
     with open(settings_file, 'w') as f:        
         json.dump(settings, f, indent=4)
@@ -104,30 +113,33 @@ else:
             CONFIG.append(settings['path'])
             CONFIG.append(settings['api_key'])
             UPLOAD = settings['upload']
+            LANG = settings['lang']
         log(Colors.GREEN+'configuration loaded succesfully ! '+Colors.END)
         log(Colors.GREEN+'changing configuration ! '+Colors.END)
     except Exception as e:
-        print(Colors.RED+'loading error : '+str(e)+Colors.END)
-        upload = input('do you want to automaticaly send report when the app crash ? (y/N) ')
+        LANG = input(translation('enter your lang as fr, en etc.. > '))
+        log(f'{Colors.RED}config file not exist creating a new one ! {Colors.END}')
+        upload = input(translation('do you want to automaticaly send report when the app crash ? (y/N) '))
         if "y" in upload.lower():
             upload = "ok"
         else:
             upload = "no"
-        path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{MUSIC_PATH}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter path to install music (nothing for default music folder) ─╼ ')
+        path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{MUSIC_PATH}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('please enter path to install music (nothing for default music folder)')} ─╼ ')
         if path == "":
             path = MUSIC_PATH
-        API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{path}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter your google youtube data V3 api key ─╼ ')
+        API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{path}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('please enter your google youtube data V3 api key')} ─╼ ')
         settings = {
             "path": path,
             "api_key": API_KEY,
-            'upload': upload
+            'upload': upload,
+            'lang': LANG
         } 
         with open(settings_file, 'w') as f:        
             json.dump(settings, f, indent=4)
             CONFIG = [path,API_KEY]    
 
 def log(log):
-    print(f'{log}                                                                                                            ',end='\r')
+    print(f'{translation(log)}                                                                                                            ',end='\r')
     log = str(log).replace('\033[0;30m','').replace('\033[0;31m','').replace('\033[0;32m','').replace('\033[0;33m','').replace('\033[0;34m','').replace('\033[0;35m','').replace('\033[0;36m','').replace('\033[0;37m','').replace('\033[1;30m','').replace('\033[1;31m','').replace('\033[1;32m','').replace('\033[1;33m','').replace('\033[1;34m','').replace('\033[1;35m','').replace('\033[1;36m','').replace('\033[1;37m','').replace('\033[1m','').replace('\033[2m','').replace('\033[3m','').replace('\033[4m','').replace('\033[5m','').replace('\033[7m','').replace('\033[9m','').replace('\033[0m','').replace(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END}','').replace(f'\n{Colors.CYAN}└──╼ ${Colors.END}','')
     write = f""" {datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")} | {log} \n"""
     with open('SpotAFan.log','a', encoding='utf-8') as f:
@@ -141,7 +153,7 @@ def list_log():
         lines = f.readlines()
     for line in lines[-40:]:
         print(line)
-    input('press a key ...')
+    input(translation('press a key ...'))
 def clear():
     if os.name =="nt":
         os.system('cls')
@@ -179,27 +191,33 @@ def settings(CONFIG):
 
 {Colors.CYAN}( path ){Colors.END} ─╼ {Colors.BOLD}{Colors.LIGHT_RED}{CONFIG[0]}{Colors.END}
 
+{Colors.CYAN}( lang ){Colors.END} ─╼ {Colors.BOLD}{Colors.LIGHT_RED}{LANG}{Colors.END}
+
 {Colors.CYAN}( API  ){Colors.END} ─╼ {Colors.BOLD}{Colors.LIGHT_RED}{CONFIG[1]}{Colors.END}
 
 {Colors.CYAN}( AUTO REPORT ){Colors.END} ─╼ {Colors.BOLD}{Colors.LIGHT_RED}{str(UPLOAD)}{Colors.END}
 ''')
-    upload = input('do you want to automaticaly send report when the app crash ? (y/N) ')
+    LANG = input(translation('enter your lang as fr, en etc.. > '))
+    log(f'{Colors.RED}config file not exist creating a new one ! {Colors.END}')
+    upload = input(translation('do you want to automaticaly send report when the app crash ? (y/N) '))
     if "y" in upload.lower():
         upload = "ok"
     else:
         upload = "no"
-    path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{MUSIC_PATH}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter path to install music (nothing for default music folder) ─╼ ')
+    path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{MUSIC_PATH}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('please enter path to install music (nothing for default music folder)')} ─╼ ')
     if path == "":
         path = MUSIC_PATH
-    API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{path}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} please enter your google youtube data V3 api key ─╼ ')
+    API_KEY = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{path}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('please enter your google youtube data V3 api key')} ─╼ ')
     settings = {
         "path": path,
         "api_key": API_KEY,
-        'upload': upload
+        'upload': upload,
+        'lang': LANG
     } 
     with open(settings_file, 'w') as f:        
         json.dump(settings, f, indent=4)
-        CONFIG = [path,API_KEY]      
+        CONFIG = [path,API_KEY]    
+
 def ascii(i=random.randint(0,4)):
     ascii =[r"""
   ********                    **       **     ********                   
@@ -281,7 +299,7 @@ def delete_music(music_path):
     for i, file in enumerate(musics):
         print(f" [{i+1}] > {Colors.GREEN}{file}{Colors.END}")
 
-    choice = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} press the numero of music to delete > ')
+    choice = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('press the numero of music to delete > ')} ')
     clear();ascii(2)
     if not choice:
         return
@@ -289,20 +307,20 @@ def delete_music(music_path):
         for music in musics:
             try:
                 song = AudioSegment.from_mp3(os.path.join(music_path,music))
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}deleting {music}{Colors.END}\n')
+                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{translation('deleting')} {music}{Colors.END}\n')
                 os.remove(song)
             except:
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}skiped !{Colors.END}\n')
+                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{translation('skiped !')}{Colors.END}\n')
     else:
         try:
             choice = int(choice)-1
         except:
-            log(f"{Colors.RED} Please enter a valid number {Colors.END}")
+            log(f"{Colors.RED} {translation('Please enter a valid number')} {Colors.END}")
         if choice >= len(musics):
-            log(f"{Colors.RED} Please enter a valid number {Colors.END}")
+            log(f"{Colors.RED} {translation('Please enter a valid number')} {Colors.END}")
         file = musics[choice]
         file_path = os.path.join(music_path, file)
-        log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}deleting {musics[choice]}{Colors.END}\n')
+        log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{translation('deleting')} {musics[choice]}{Colors.END}\n')
         os.remove(file_path)
 
 def list_music(music_path):
@@ -317,22 +335,22 @@ def list_music(music_path):
     for i, file in enumerate(musics):
         print(f" [{i+1}] > {Colors.GREEN}{file}{Colors.END}")
 
-    choice = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} press the numero of music to start with > ')
+    choice = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('press the numero of music to start with > ')} ')
     clear();ascii(2)
     if not choice:
         return
     if 'a' in choice.lower():
         for music in musics:
             clear();ascii(2)
-            print('you can press Ctrl + C to skip !')
+            print(translation('you can press Ctrl + C to skip !'))
             
             try:
                 song = AudioSegment.from_mp3(os.path.join(music_path,music))
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}playing {music}{Colors.END}\n')
+                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN} {music}{Colors.END}\n')
                 just_log(f'playing {music}')
                 play(song)
             except KeyboardInterrupt:
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}skiped !{Colors.END}\n')
+                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{translation('next !')}{Colors.END}\n')
                 time.sleep(0.2)
                 
 
@@ -340,9 +358,9 @@ def list_music(music_path):
         try:
             choice = int(choice)-1
         except:
-            log(f"{Colors.RED} Please enter a valid number {Colors.END}")
+            log(f"{Colors.RED} veuillez entrez un numéro valide {Colors.END}")
         if choice >= len(musics):
-            log(f"{Colors.RED} Please enter a valid number {Colors.END}")
+            log(f"{Colors.RED} veuillez entrez un numéro valide {Colors.END}")
         file = musics[choice]
         file_path = os.path.join(music_path, file)
         play_music(file_path,musics[choice])
@@ -353,20 +371,20 @@ def play_music(path,name):
     # for playing mp3 file
     try:
         song = AudioSegment.from_mp3(path)
-        print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}playing {name}{Colors.END}\n')
+        print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{translation('playing')} {name}{Colors.END}\n')
         play(song)
     except Exception as e:
         just_log(f"Error playing music in terminal starting in a media player : {str(e)}")
         try:
             if system == "Windows":
                 os.startfile(path)
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}playing {name}{Colors.END}\n')
+                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{translation('playing')} {name}{Colors.END}\n')
             elif system == "Darwin":  # macOS
                 subprocess.run(["open", path])
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}playing {name}{Colors.END}\n')
+                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{translation('playing')} {name}{Colors.END}\n')
             elif system == "Linux":
                 subprocess.run(["xdg-open",path])
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}playing {name}{Colors.END}\n')
+                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{translation('playing')} {name}{Colors.END}\n')
             else:
                 raise OSError(f"Unsupported operating system: {system}")
         except Exception as e:
@@ -406,33 +424,33 @@ def search_videos_on_youtube(query, api_key, max_results=10):
 
 def download_music():
     clear();ascii(random.randint(0,3))
-    query = input(f"{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} Entrez le nom de la musique > ")
+    query = input(f"{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('Entrez le nom de la musique > ')} ")
     if not query:
-        log(f"{Colors.RED}Veuillez entrer une requête valide !{Colors.END}")
+        log(f"{Colors.RED}{translation('Veuillez entrer une requête valide !')}{Colors.END}")
         return
     api_key = CONFIG[1]
     try:
         videos = search_videos_on_youtube(query, api_key)
         if not videos:
-            log(f"{Colors.RED}Aucune vidéo trouvée pour cette requête.{Colors.END}")
+            log(f"{Colors.RED}{translation('Aucune vidéo trouvée pour cette requête.')}{Colors.END}")
             return
         for i, video in enumerate(videos):
             print(f"{Colors.GREEN}[{i}] > {video['title']}{Colors.END}")
-        choice = input(f"{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} Entrez le numéro de la vidéo à télécharger (ou appuyez sur Entrée pour annuler) > ")
+        choice = input(f"{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('Entrez le numéro de la vidéo à télécharger (ou appuyez sur Entrée pour annuler) > ')}")
         if not choice:
             return
         try:
             choice = int(choice)
             if choice < 0 or choice >= len(videos):
-                print(f"{Colors.RED}Numéro invalide.{Colors.END}")
+                print(f"{Colors.RED}{translation('Numéro invalide.')}{Colors.END}")
                 return
         except ValueError:
-            print(f"{Colors.RED}Veuillez entrer un numéro valide.{Colors.END}")
+            print(f"{Colors.RED}{translation('Veuillez entrer un numéro valide.')}{Colors.END}")
             return
         video_url = f"https://www.youtube.com/watch?v={videos[choice]['videoId']}"
         download_path = CONFIG[0]
         download_music_with_ytdlp(video_url, download_path)
-        log(f"{Colors.GREEN}Téléchargement terminé !{Colors.END}")
+        log(f"{Colors.GREEN}{translation('Téléchargement terminé !')}{Colors.END}")
     except HttpError as e:
         just_log(f"Une erreur s'est produite lors de la recherche sur YouTube : {str(e)}")
 
@@ -442,20 +460,20 @@ def menu():
         clear()
         ascii(random.randint(0,3))
         print(f"""
-        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 1 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}download music        {Colors.END}{Colors.BOLD}{Colors.LIGHT_RED}|{Colors.END}
-        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 2 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}list and play music   {Colors.END}{Colors.BOLD}{Colors.LIGHT_RED}|{Colors.END} 
-        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 3 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}delete music          {Colors.END}{Colors.BOLD}{Colors.LIGHT_RED}|{Colors.END} 
-        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 4 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}settings              {Colors.END}{Colors.BOLD}{Colors.LIGHT_RED}|{Colors.END}
-        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 5 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}list last log         {Colors.END}{Colors.BOLD}{Colors.LIGHT_RED}|{Colors.END}
-        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 6 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}send report           {Colors.END}{Colors.BOLD}{Colors.LIGHT_RED}|{Colors.END}
-        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 7 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}exit                  {Colors.END}{Colors.BOLD}{Colors.LIGHT_RED}|{Colors.END}
+        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 1 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}{translation('download music')}        {Colors.END}{Colors.BOLD}
+        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 2 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}{translation('list and play music')}   {Colors.END}{Colors.BOLD}
+        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 3 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}{translation('delete music')}          {Colors.END}{Colors.BOLD}
+        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 4 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}{translation('settings')}              {Colors.END}{Colors.BOLD}
+        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 5 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}{translation('list last log')}         {Colors.END}{Colors.BOLD}
+        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 6 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}{translation('send report')}           {Colors.END}{Colors.BOLD}
+        {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 7 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}{translation('exit')}                  {Colors.END}{Colors.BOLD}
 
     """)
         choice = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} ')
         try:
             choice = int(choice)
         except:
-            print(f"{Colors.RED}Veuillez entrer un numéro valide.{Colors.END}")
+            print(f"{Colors.RED}{translation('Veuillez entrer un numéro valide.')}{Colors.END}")
         try:
             if choice == 1:
                 if not check_internet_connection():
@@ -487,6 +505,6 @@ while __name__ == "__main__":
         menu()
     except KeyboardInterrupt:
         log(f"{Colors.RED}interrupted !{Colors.END}")
-        if 'y' in input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} press y to leave > ').lower():
+        if 'y' in input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {translation('press y to leave > ')}').lower():
             log(f'{Colors.CYAN}leaving ..{Colors.END}')
             exit()
