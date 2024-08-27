@@ -15,6 +15,7 @@ link of google api : [API DOCS](https://developers.google.com/youtube/v3)
 
 notice there is auto report function if the app crash for a reason the log file will be send to me automaticaly but you can disable the option 
 
+
 defender smart screen detect it as malicious but you can see the source code there is nothing to hide
 
 if you prefere to use the python version don't forget to install the librairies with 
@@ -25,3 +26,5 @@ if you prefere to use the python version don't forget to install the librairies 
 > without ad
 
 > friendly interface
+
+> language translation 
