@@ -9,6 +9,7 @@ import requests
 import yt_dlp
 from translate import Translator
 import random
+import threading
 import json
 from pydub.playback import play
 import datetime
@@ -21,8 +22,6 @@ YOUTUBE_API_VERSION = 'v3'
 API_KEY = ""
 #default language
 LANG = 'en'
-
-
 
     
 #translation module
@@ -469,8 +468,31 @@ def delete_music(music_path):
         os.remove(file_path)
 
 #list and play musics
+
+STOP = False
+
+def countdown(duration, name):
+    global STOP
+    STOP = False  # Ensure STOP is reset when the countdown starts
+    time.sleep(1)
+    minutes, seconds = divmod(duration, 60)
+    total = f"{int(minutes):02d}:{int(seconds):02d}"
+
+    while duration > 0 and not STOP:
+        minutes, seconds = divmod(duration, 60)
+        time_remaining = f"{int(minutes):02d}:{int(seconds):02d}"
         
+        print(f'{Colors.RED}──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\t\t\t\t\t{time_remaining}m\t\t{total}m\r', end="\r")
+        time.sleep(1)
+        duration -= 1
+
+    if STOP:
+        print("\r                                                          ", end="\r")
+    else:
+        print("\r                                                          ", end="\r")
+
 def list_music(music_path):
+    global STOP
     clear();ascii(random.randint(0,2))
     files = os.listdir(music_path)
     musics = []
@@ -490,55 +512,60 @@ def list_music(music_path):
         for music in musics:
             clear();ascii(2)
             print(Text.get_text('ctrl c'))
-            
-            try:
-                song = AudioSegment.from_mp3(os.path.join(music_path,music))
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN} {music}{Colors.END}\n')
-                just_log(f'playing {music}')
-                play(song)
-            except KeyboardInterrupt:
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
-                time.sleep(0.2)
-                
 
+            try:
+                song = AudioSegment.from_mp3(os.path.join(music_path, music))
+                duration = song.duration_seconds
+                countdown_thread = threading.Thread(target=countdown, args=(duration, music))
+                countdown_thread.start()
+                just_log('playing ' + music)
+                play(song)
+                countdown_thread.join()
+            except KeyboardInterrupt:
+                STOP = True
+                print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
+                countdown_thread.join()
+                time.sleep(0.1)
     else:
         try:
-            choice = int(choice)-1
+            choice = int(choice) - 1
         except:
             log(f"{Colors.RED} {Text.get_text('please_enter_valid_number')} {Colors.END}")
         if choice >= len(musics):
             log(f"{Colors.RED} {Text.get_text('please_enter_valid_number')} {Colors.END}")
         file = musics[choice]
         file_path = os.path.join(music_path, file)
-        play_music(file_path,musics[choice])
+        play_music(file_path, musics[choice])
         just_log(f'playing {musics[choice]}')
 
-
-def play_music(path,name):
+def play_music(path, name):
+    global STOP
     try:
-        # for playing mp3 file
-        try:
-            song = AudioSegment.from_mp3(path)
-            print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\n')
-            play(song)
-        except Exception as e:
-            just_log(f"Error playing music in terminal starting in a media player : {str(e)}")
-            try:
-                if system == "Windows":
-                    os.startfile(path)
-                    log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\n')
-                elif system == "Darwin":  # macOS
-                    subprocess.run(["open", path])
-                    log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\n')
-                elif system == "Linux":
-                    subprocess.run(["xdg-open",path])
-                    log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\n')
-                else:
-                    raise OSError(f"Unsupported operating system: {system}")
-            except Exception as e:
-                log(f"An error occurred while trying to open the file: {e}")
+        song = AudioSegment.from_mp3(path)
+        duration = song.duration_seconds
+        countdown_thread = threading.Thread(target=countdown, args=(duration, name))
+        countdown_thread.start()
+        play(song)
+        countdown_thread.join()
+    except KeyboardInterrupt:
+        STOP = True
+        countdown_thread.join()
     except Exception as e:
-        just_log(e)
+        just_log(f"Error playing music in terminal starting in a media player: {str(e)}")
+        try:
+            if system == "Windows":
+                os.startfile(path)
+                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\n')
+            elif system == "Darwin":  # macOS
+                subprocess.run(["open", path])
+                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\n')
+            elif system == "Linux":
+                subprocess.run(["xdg-open", path])
+                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\n')
+            else:
+                raise OSError(f"Unsupported operating system: {system}")
+        except Exception as e:
+            log(f"An error occurred while trying to open the file: {e}")
 
 def download_music_with_ytdlp(video_url, download_path):
     try:
