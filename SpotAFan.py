@@ -91,8 +91,6 @@ else:
 if not os.path.exists(STORAGE):
     os.makedirs(STORAGE)
 
-input()
-
 #log module
 def log(log):
     print(f'{log}                                                                                                            ',end='\r')
