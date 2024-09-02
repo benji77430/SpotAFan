@@ -1,3 +1,16 @@
+"""
+
+VERSION : 0.4
+AUTHOR : BENJI77
+DATE : 2024/02/09
+
+
+
+"""
+
+VERSION = 0.4
+
+
 import os
 import socket
 from googleapiclient.discovery import build
@@ -260,6 +273,7 @@ class Text:
         return Text.translations.get(key, {})
 
 
+
 def log(log):
     print(f'{log}                                                                                                            ',end='\r')
     log = str(log).replace('\033[0;30m','').replace('\033[0;31m','').replace('\033[0;32m','').replace('\033[0;33m','').replace('\033[0;34m','').replace('\033[0;35m','').replace('\033[0;36m','').replace('\033[0;37m','').replace('\033[1;30m','').replace('\033[1;31m','').replace('\033[1;32m','').replace('\033[1;33m','').replace('\033[1;34m','').replace('\033[1;35m','').replace('\033[1;36m','').replace('\033[1;37m','').replace('\033[1m','').replace('\033[2m','').replace('\033[3m','').replace('\033[4m','').replace('\033[5m','').replace('\033[7m','').replace('\033[9m','').replace('\033[0m','').replace(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END}','').replace(f'\n{Colors.CYAN}└──╼ ${Colors.END}','')
@@ -356,11 +370,111 @@ def setting():
     } 
     with open(settings_file, 'w') as f:        
         json.dump(settings, f, indent=4)
-        CONFIG = [path,API_KEY]  
+        CONFIG = [path,api]  
         UPLOAD = upload
     
+if os.path.exists(os.path.join(STORAGE,"version.txt")):
+    with open(os.path.join(STORAGE,"version.txt"), "r") as f:
+        file = f.read()
 
+        if float(file) < VERSION:
+            print(f'installing new update !')
+            just_log(f'installing new update !')
+            os.remove(os.path.join(STORAGE,f'{LANG}.json'))
+            os.remove(os.path.join(STORAGE,f'SpotAFan.log'))
+            setting()
+    with open(os.path.join(STORAGE,"version.txt"), "w") as f:
+        f.write(str(VERSION))
+else:
+    with open(os.path.join(STORAGE,"version.txt"), "w") as f:
+        f.write(str(VERSION))
     
+class Text:
+    file = f'{STORAGE}//{LANG}.json'
+    translations = {
+        "download_music": {},
+        "list_and_play_music": {},
+        "delete_music": {},
+        "settings": {},
+        "list_last_log": {},
+        "send_report": {},
+        "exit": {},
+        "no_internet_connection": {},
+        "press_number_of_music_to_delete": {},
+        "deleting": {},
+        "skipped": {},
+        "press_number_of_music_to_start": {},
+        "next": {},
+        "please_enter_valid_number": {},
+        "playing": {},
+        "enter_valid_query": {},
+        "enter_music_name": {},
+        "no_videos_found": {},
+        "enter_video_number_to_download": {},
+        "invalid_number": {},
+        "download_complete": {},
+        "enter_language": {},
+        "auto_send_report": {},
+        "enter_install_music_path": {},
+        "enter_api_key": {},
+        "log_no_log": {},
+        "report_sent": {},
+        "restart": {},
+        "ctrl c" : {},
+        "leave" : {}
+    }
+
+    if os.path.exists(file):
+        with open(file, 'r') as f:
+            data = json.load(f)
+            for text in data:
+                translations[text] = data[text]
+    else:
+        print(translation("downloading language !")+"                                ",end="\r")
+        # Populate translations using the translation function
+        for key in translations:
+            for lang in LANG:
+                translations[key] = translation({
+                    "download_music": "Download music",
+                    "list_and_play_music": "List and play music",
+                    "delete_music": "Delete music",
+                    "settings": "Settings",
+                    "list_last_log": "open logs",
+                    "send_report": "Send report",
+                    "exit": "Exit",
+                    "no_internet_connection": "NO INTERNET CONNECTION",
+                    "press_number_of_music_to_delete": "Press the number of the music to delete > ",
+                    "deleting": "Deleting",
+                    "skipped": "Skipped!",
+                    "press_number_of_music_to_start": "Press the number of the music to start with > ",
+                    "next": "Next!",
+                    "please_enter_valid_number": "Please enter a valid number",
+                    "playing": "Playing :",
+                    "enter_valid_query": "Please enter a valid query!",
+                    "enter_music_name": "Enter the name of the music > ",
+                    "no_videos_found": "No videos found for this query.",
+                    "enter_video_number_to_download": "Enter the number of the video to download (or press Enter to cancel) > ",
+                    "invalid_number": "Invalid number.",
+                    "download_complete": "Download complete!",
+                    "enter_language": "Enter your language as fr, en etc.. > ",
+                    "auto_send_report": "Do you want to automatically send a report when the app crashes?",
+                    "enter_install_music_path": "Please enter path to install music (leave empty for default music folder) > ",
+                    "enter_api_key": "Please enter your Google YouTube Data V3 API key > ",
+                    "log_no_log": "No log!",
+                    "report_sent": "Report sent!",
+                    "restart": "Restart needed tou should restart the APP !",
+                    "ctrl c": "'you can press Ctrl + C to skip !'",
+                    "leave" : "press y to leave > "
+                }[key])
+        with open(file,'w') as f:
+            json.dump(translations,f,indent=4)
+        log('update successfull !')
+
+
+       
+    @staticmethod
+    def get_text(key):
+        return Text.translations.get(key, {})
 #GUI 
 def ascii(i=random.randint(0,4)):
     ascii =[r"""
@@ -477,12 +591,17 @@ def countdown(duration, name):
     time.sleep(1)
     minutes, seconds = divmod(duration, 60)
     total = f"{int(minutes):02d}:{int(seconds):02d}"
+    extrait = name[:65]
 
+    # On vérifie si le dernier caractère est une partie d'un mot (i.e., pas un espace)
+    if extrait[-1] != ' ':
+        # Si oui, on enlève les caractères jusqu'au dernier espace
+        extrait = extrait.rsplit(' ', 1)[0]
     while duration > 0 and not STOP:
         minutes, seconds = divmod(duration, 60)
         time_remaining = f"{int(minutes):02d}:{int(seconds):02d}"
         
-        print(f'{Colors.RED}──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\t\t\t\t\t{time_remaining}m\t\t{total}m\r', end="\r")
+        print(f'{Colors.RED}──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {extrait}{Colors.END}\t\t\t{time_remaining}m\t\t{total}m\r', end="\r")
         time.sleep(1)
         duration -= 1
 
@@ -523,9 +642,8 @@ def list_music(music_path):
                 countdown_thread.join()
             except KeyboardInterrupt:
                 STOP = True
-                print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
+                print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END}                                                                                               \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
                 countdown_thread.join()
-                time.sleep(0.1)
     else:
         try:
             choice = int(choice) - 1
