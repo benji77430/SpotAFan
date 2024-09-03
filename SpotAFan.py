@@ -1,20 +1,120 @@
-import os
-import socket
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from pydub import AudioSegment
+"""
+
+VERSION : 0.4
+AUTHOR : BENJI77
+DATE : 2024/02/09
+
+
+
+"""
+
+VERSION = 0.4
 import platform
-import subprocess
-import requests
-import yt_dlp
-from translate import Translator
-import random
-import threading
-import json
-from pydub.playback import play
-import datetime
-import time
-import getpass
+import os
+
+home_dir = os.path.expanduser("~")
+system = platform.system()
+print(system)
+if system == "Windows":
+    MUSIC_PATH = os.path.join(home_dir, "Music")
+    APPDATA = os.getenv('APPDATA')
+    STORAGE = os.path.join(APPDATA,"SpotAFan")
+    print("Windows detected")
+elif system == "Darwin":
+    MUSIC_PATH = os.path.join(home_dir, "Musique")
+    STORAGE = os.path.join("SpotAFan","config")
+    print("MacOS detected")
+
+elif system == "Linux":
+    MUSIC_PATH = os.path.join(home_dir, "Musique")
+    STORAGE = os.path.join("SpotAFan","config") 
+    print("LINUX detected")
+else:
+    raise OSError(f"Unsupported operating system: {system}")
+if not os.path.exists(STORAGE):
+    os.makedirs(STORAGE)
+try:
+    import socket
+    from googleapiclient.discovery import build
+    from googleapiclient.errors import HttpError
+    from pydub import AudioSegment
+    import pygame.mixer as mixer
+    import subprocess
+    import pygame.mixer as mixer
+    from tkinter import *
+    import keyboard
+    from tkinter import filedialog
+    import audio_metadata
+    from PIL import ImageTk, Image
+    from io import BytesIO
+    import os
+    import time
+    import sys
+    import requests
+    import audio_metadata
+    import yt_dlp
+    from translate import Translator
+    import random
+    import threading
+    import urllib.request
+    import zipfile
+    import json
+    from pydub.playback import play
+    import datetime
+    import time
+    import getpass
+except ImportError as e:
+    print(f'error while importing libraires : {e}')
+    if "y" in input('are you running the python version (y/N) > ').lower():
+        with open(os.path.join(STORAGE,'requirements.txt'),'w') as f:
+            libs = """os-sys
+google-api-python-client
+pydub
+requests
+yt-dlp
+platform
+subprocess.run
+translate
+simpleaudio
+keybaord
+json
+datetime"""
+        os.system(f'pip install -r {os.path.join(STORAGE,'requirements.txt')}')
+        os.remove(os.path.join(STORAGE,'requirements.txt'))
+        import os
+        import socket
+        from googleapiclient.discovery import build
+        from googleapiclient.errors import HttpError
+        from pydub import AudioSegment
+        import pygame.mixer as mixer
+        import subprocess
+        import pygame.mixer as mixer
+        from tkinter import *
+        import keyboard
+        from tkinter import filedialog
+        import audio_metadata
+        from PIL import ImageTk, Image
+        from io import BytesIO
+        import os
+        import time
+        import sys
+        import requests
+        import audio_metadata
+        import yt_dlp
+        from translate import Translator
+        import random
+        import threading
+        import urllib.request
+        import zipfile
+        import json
+        from pydub.playback import play
+        import datetime
+        import time
+        import getpass
+    else:
+        print('if you are running the .exe please copy the error and report it on github :) ')
+        input('press a key ..')
+        exit()
 # Configuration de l'API YouTube
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 CONNECTED = False
@@ -22,6 +122,61 @@ YOUTUBE_API_VERSION = 'v3'
 API_KEY = ""
 #default language
 LANG = 'en'
+
+#ffmpeg install 
+def install_ffmpeg():
+    def download_ffmpeg(url, download_path):
+        print(f"Téléchargement de FFmpeg depuis {url}...")
+        urllib.request.urlretrieve(url, download_path)
+        print("Téléchargement terminé.")
+
+    def extract_zip(zip_path, extract_to):
+        print(f"Extraction de {zip_path}...")
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_to)
+        print("Extraction terminée.")
+
+    def install_ffmpeg(ffmpeg_dir):
+        bin_path = os.path.join(ffmpeg_dir, 'bin')
+        ffmpeg_path = os.path.join(bin_path, 'ffmpeg.exe')
+
+        if os.path.exists(ffmpeg_dir):
+            print("FFmpeg a été installé avec succès.")
+        else:
+            print("L'installation de FFmpeg a échoué.")
+
+        # Ajout de FFmpeg au PATH
+        path_env = os.environ.get('PATH', '')
+        if bin_path not in path_env:
+            print("Ajout de FFmpeg au PATH...")
+            os.environ['PATH'] = f"{bin_path};{path_env}"
+            print("FFmpeg a été ajouté au PATH.")
+        else:
+            print("FFmpeg est déjà dans le PATH.")
+
+    def main():
+        system = platform.system().lower()
+        ffmpeg_url = ""
+
+        if system == "windows":
+            ffmpeg_url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+        else:
+            print("Ce script ne supporte actuellement que Windows.")
+            return
+
+        download_path = "ffmpeg.zip"
+        download_ffmpeg(ffmpeg_url, download_path)
+
+        extract_to = os.path.join(STORAGE,"ffmpeg")
+        extract_zip(download_path, extract_to)
+
+        install_ffmpeg(extract_to)
+
+        # Nettoyage
+        os.remove(download_path)
+        print("Installation terminée.")
+    main()
+
 
     
 #translation module
@@ -63,32 +218,21 @@ class Colors:
 UPLOAD = ""
 CONFIG = []
 
-home_dir = os.path.expanduser("~")
 
-# Determine the operating system
-system = platform.system()
-print(system)
 
-# Construct the path to the Music directory based on the operating system
-if system == "Windows":
-    MUSIC_PATH = os.path.join(home_dir, "Music")
-    APPDATA = os.getenv('APPDATA')
-    STORAGE = os.path.join(APPDATA,"SpotAFan")
-    print("Windows detected")
-elif system == "Darwin":  # macOS
-    MUSIC_PATH = os.path.join(home_dir, "Musique")
-    STORAGE = os.path.join("SpotAFan","config")
-    print("MacOS detected")
 
-elif system == "Linux":
-    MUSIC_PATH = os.path.join(home_dir, "Musique")
-    STORAGE = os.path.join("SpotAFan","config") 
-    print("LINUX detected")
+if system == "Windows" and not os.path.exists(os.path.join(STORAGE,"ffmepg")):
+    if "y" in input('do you want to install ffmepg (NEEDED PACKAGE !) (y/N) > ').lower():
+        print('installing ffmepg !')
+        install_ffmpeg()
+    open(os.path.join(STORAGE,"ffmepg"),"w").write("installed !")
+elif not os.path.exists(os.path.join(STORAGE,"ffmepg")):
+    print('PLEASE INSTALL FFMEPG TO USE THIS APP !')
+    while not "y" in input('press a y when installed > '):
+        pass
+    open(os.path.join(STORAGE,"ffmepg"),"w").write("installed !")
 
-else:
-    raise OSError(f"Unsupported operating system: {system}")
-if not os.path.exists(STORAGE):
-    os.makedirs(STORAGE)
+    
 
 #log module
 def log(log):
@@ -206,7 +350,9 @@ class Text:
         "report_sent": {},
         "restart": {},
         "ctrl c" : {},
-        "leave" : {}
+        "leave" : {},
+        "staying": {}
+
     }
 
     if os.path.exists(file):
@@ -230,7 +376,7 @@ class Text:
                     "no_internet_connection": "NO INTERNET CONNECTION",
                     "press_number_of_music_to_delete": "Press the number of the music to delete > ",
                     "deleting": "Deleting",
-                    "skipped": "Skipped!",
+                    "skipped": "Skipped !",
                     "press_number_of_music_to_start": "Press the number of the music to start with > ",
                     "next": "Next!",
                     "please_enter_valid_number": "Please enter a valid number",
@@ -248,8 +394,10 @@ class Text:
                     "log_no_log": "No log!",
                     "report_sent": "Report sent!",
                     "restart": "Restart needed tou should restart the APP !",
-                    "ctrl c": "'you can press Ctrl + C to skip !'",
-                    "leave" : "press y to leave > "
+                    "ctrl c": "$ = skip, O to volume up and L to volume down and END to exit the music player",
+                    "leave" : "press y to leave > ",
+                    "staying": "Time Elapsed : "
+
                 }[key])
         with open(file,'w') as f:
             json.dump(translations,f,indent=4)
@@ -258,6 +406,7 @@ class Text:
     @staticmethod
     def get_text(key):
         return Text.translations.get(key, {})
+
 
 
 def log(log):
@@ -356,11 +505,114 @@ def setting():
     } 
     with open(settings_file, 'w') as f:        
         json.dump(settings, f, indent=4)
-        CONFIG = [path,API_KEY]  
+        CONFIG = [path,api]  
         UPLOAD = upload
     
+if os.path.exists(os.path.join(STORAGE,"version.txt")):
+    with open(os.path.join(STORAGE,"version.txt"), "r") as f:
+        file = f.read()
 
+        if float(file) < VERSION:
+            print(f'installing new update !')
+            just_log(f'installing new update !')
+            os.remove(os.path.join(STORAGE,f'{LANG}.json'))
+            os.remove(os.path.join(STORAGE,f'SpotAFan.log'))
+            setting()
+    with open(os.path.join(STORAGE,"version.txt"), "w") as f:
+        f.write(str(VERSION))
+else:
+    with open(os.path.join(STORAGE,"version.txt"), "w") as f:
+        
+        f.write(str(VERSION))
     
+class Text:
+    file = f'{STORAGE}//{LANG}.json'
+    translations = {
+        "download_music": {},
+        "list_and_play_music": {},
+        "delete_music": {},
+        "settings": {},
+        "list_last_log": {},
+        "send_report": {},
+        "exit": {},
+        "no_internet_connection": {},
+        "press_number_of_music_to_delete": {},
+        "deleting": {},
+        "skipped": {},
+        "press_number_of_music_to_start": {},
+        "next": {},
+        "please_enter_valid_number": {},
+        "playing": {},
+        "enter_valid_query": {},
+        "enter_music_name": {},
+        "no_videos_found": {},
+        "enter_video_number_to_download": {},
+        "invalid_number": {},
+        "download_complete": {},
+        "enter_language": {},
+        "auto_send_report": {},
+        "enter_install_music_path": {},
+        "enter_api_key": {},
+        "log_no_log": {},
+        "report_sent": {},
+        "restart": {},
+        "ctrl c" : {},
+        "leave" : {},
+        "staying": {}
+    }
+
+    if os.path.exists(file):
+        with open(file, 'r') as f:
+            data = json.load(f)
+            for text in data:
+                translations[text] = data[text]
+    else:
+        print(translation("downloading language !")+"                                ",end="\r")
+        # Populate translations using the translation function
+        for key in translations:
+            for lang in LANG:
+                translations[key] = translation({
+                    "download_music": "Download music",
+                    "list_and_play_music": "List and play music",
+                    "delete_music": "Delete music",
+                    "settings": "Settings",
+                    "list_last_log": "open logs",
+                    "send_report": "Send report",
+                    "exit": "Exit",
+                    "no_internet_connection": "NO INTERNET CONNECTION",
+                    "press_number_of_music_to_delete": "Press the number of the music to delete > ",
+                    "deleting": "Deleting",
+                    "skipped": "Skipped !",
+                    "press_number_of_music_to_start": "Press the number of the music to start with > ",
+                    "next": "Next!",
+                    "please_enter_valid_number": "Please enter a valid number",
+                    "playing": "Playing :",
+                    "enter_valid_query": "Please enter a valid query!",
+                    "enter_music_name": "Enter the name of the music > ",
+                    "no_videos_found": "No videos found for this query.",
+                    "enter_video_number_to_download": "Enter the number of the video to download (or press Enter to cancel) > ",
+                    "invalid_number": "Invalid number.",
+                    "download_complete": "Download complete!",
+                    "enter_language": "Enter your language as fr, en etc.. > ",
+                    "auto_send_report": "Do you want to automatically send a report when the app crashes?",
+                    "enter_install_music_path": "Please enter path to install music (leave empty for default music folder) > ",
+                    "enter_api_key": "Please enter your Google YouTube Data V3 API key > ",
+                    "log_no_log": "No log!",
+                    "report_sent": "Report sent!",
+                    "restart": "Restart needed tou should restart the APP !",
+                    "ctrl c": "$ = skip, O to volume up and L to volume down and END to exit the music player",
+                    "leave" : "press y to leave > ",
+                    "staying": "Time Elapsed : "
+                }[key])
+        with open(file,'w') as f:
+            json.dump(translations,f,indent=4)
+        log('update successfull !')
+
+
+       
+    @staticmethod
+    def get_text(key):
+        return Text.translations.get(key, {})
 #GUI 
 def ascii(i=random.randint(0,4)):
     ascii =[r"""
@@ -468,38 +720,52 @@ def delete_music(music_path):
         os.remove(file_path)
 
 #list and play musics
-
+global STOP
 STOP = False
-
-def countdown(duration, name):
-    global STOP
-    STOP = False  # Ensure STOP is reset when the countdown starts
+def other(duration, name):
+    
     time.sleep(1)
     minutes, seconds = divmod(duration, 60)
     total = f"{int(minutes):02d}:{int(seconds):02d}"
+    extrait = name[:65]
 
+    # On vérifie si le dernier caractère est une partie d'un mot (i.e., pas un espace)
+    if extrait[-1] != ' ':
+        # Si oui, on enlève les caractères jusqu'au dernier espace
+        extrait = extrait.rsplit(' ', 1)[0]
     while duration > 0 and not STOP:
         minutes, seconds = divmod(duration, 60)
         time_remaining = f"{int(minutes):02d}:{int(seconds):02d}"
         
-        print(f'{Colors.RED}──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\t\t\t\t\t{time_remaining}m\t\t{total}m\r', end="\r")
+        print(f'{Colors.RED}──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {extrait}{Colors.END}\t\t\t{time_remaining}m\t\t{total}m\r', end="\r")
         time.sleep(1)
         duration -= 1
 
-    if STOP:
-        print("\r                                                          ", end="\r")
-    else:
-        print("\r                                                          ", end="\r")
-
-def list_music(music_path):
+   
+    print("\r                                                         ", end="\r")
+def countdown():
+    global duration, metadata, music
     global STOP
+    while not STOP:
+        current_time = mixer.music.get_pos() / 1000
+
+        converted_current_time = time.strftime('%M:%S', time.gmtime(current_time))
+        
+        song_duration = duration
+        if converted_current_time > song_duration:
+            STOP = True
+
+        print(f"{Colors.RED}──╼ ${Colors.END} Volume : {round(float(mixer.music.get_volume()*100))} | {Text.get_text('staying')}{converted_current_time} / {song_duration} | {Colors.CYAN}{Text.get_text("playing")} {music}{Colors.END}",end="\r")
+        time.sleep(0.01)
+def list_music(music_path):
+    global STOP, music
     clear();ascii(random.randint(0,2))
     files = os.listdir(music_path)
     musics = []
     print(f' [A] > {Colors.GREEN}ALL{Colors.END} ')
 
     for music in files:
-        if str(music).endswith('mp3') or str(music).endswith('mp4'):
+        if str(music).endswith('mp3') or str(music).endswith('mp4') or str(music).endswith('webm') or str(music).endswith('wav'):
             musics.append(music)
     for i, file in enumerate(musics):
         print(f" [{i+1}] > {Colors.GREEN}{file}{Colors.END}")
@@ -514,18 +780,66 @@ def list_music(music_path):
             print(Text.get_text('ctrl c'))
 
             try:
-                song = AudioSegment.from_mp3(os.path.join(music_path, music))
-                duration = song.duration_seconds
-                countdown_thread = threading.Thread(target=countdown, args=(duration, music))
-                countdown_thread.start()
+                STOP = False
                 just_log('playing ' + music)
-                play(song)
-                countdown_thread.join()
+                mixer.init()
+                mixer.music.load(os.path.join(music_path, music))
+                mixer.music.play()
+                global duration, metadata
+                metadata=audio_metadata.load(os.path.join(music_path, music))
+                song_len = metadata.streaminfo['duration']
+                duration = time.strftime('%M:%S', time.gmtime(song_len))
+                count = threading.Thread(target=countdown)
+                count.start()
+                def volume_up():
+                    value = mixer.music.get_volume()
+                    new_value = value + 0.05
+                    if not new_value > 1:
+                        value= new_value
+                    else:
+                        value = 1
+
+                    mixer.music.set_volume(value)
+
+                def volume_down():
+                    value = mixer.music.get_volume()
+                    new_value = value - 0.05
+                    if not new_value < 0.00:
+                        value = new_value
+                    else:
+                        value = 0.00
+
+                    mixer.music.set_volume(value)
+
+                def stop_music():
+                    mixer.music.stop()
+                    global STOP
+                    STOP = True
+                def stop_playist():
+                    mixer.music.stop()
+                    global OUT, STOP
+                    OUT = True
+                    STOP = True
+
+                #countdown(music)
+                keyboard.add_hotkey('o',volume_up)
+                keyboard.add_hotkey('l',volume_down)
+                keyboard.add_hotkey('$',stop_music)
+                keyboard.add_hotkey('end',stop_playist)
+                count = threading.Thread(target=countdown)
+                count.start()
+                while not STOP:
+                    keyboard.read_key()
+                    time.sleep(0.01)
+                if OUT:
+                    break
+                count.join()
+                print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END}                                                                                               \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
+                
+                    
             except KeyboardInterrupt:
                 STOP = True
-                print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
-                countdown_thread.join()
-                time.sleep(0.1)
+                print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END}                                                                                               \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
     else:
         try:
             choice = int(choice) - 1
@@ -539,17 +853,57 @@ def list_music(music_path):
         just_log(f'playing {musics[choice]}')
 
 def play_music(path, name):
-    global STOP
+    global STOP, music
+    music = name
+
     try:
-        song = AudioSegment.from_mp3(path)
-        duration = song.duration_seconds
-        countdown_thread = threading.Thread(target=countdown, args=(duration, name))
-        countdown_thread.start()
-        play(song)
-        countdown_thread.join()
+        print(Text.get_text('ctrl c'))
+        STOP = False
+        mixer.init()
+        mixer.music.load(path)
+        mixer.music.play()
+        global duration, metadata
+        metadata=audio_metadata.load(path)
+        song_len = metadata.streaminfo['duration']
+        duration = time.strftime('%M:%S', time.gmtime(song_len))
+        count = threading.Thread(target=countdown)
+        count.start()
+        def volume_up():
+            value = mixer.music.get_volume()
+            new_value = value + 0.05
+            if not new_value > 1:
+                value= new_value
+            else:
+                value = 1
+            mixer.music.set_volume(value)
+
+        def volume_down():
+            value = mixer.music.get_volume()
+            new_value = value - 0.05
+            if not new_value < 0.00:
+                value = new_value
+            else:
+                value = 0.00
+
+            mixer.music.set_volume(value)
+
+        def stop_music():
+            mixer.music.stop()
+            global STOP
+            STOP = True
+        keyboard.add_hotkey('o',volume_up)
+        keyboard.add_hotkey('l',volume_down)
+        keyboard.add_hotkey('$',stop_music)
+        count = threading.Thread(target=countdown)
+        count.start()
+        while not STOP:
+            keyboard.read_key()
+            time.sleep(0.01)
+        print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END}                                                                                               \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
+        count.join()
     except KeyboardInterrupt:
         STOP = True
-        countdown_thread.join()
+        count.join()
     except Exception as e:
         just_log(f"Error playing music in terminal starting in a media player: {str(e)}")
         try:
@@ -662,6 +1016,7 @@ def menu():
                     download_music()
                 elif choice == 2:
                     list_music(CONFIG[0])
+                    
                 elif choice == 3:
                     delete_music(CONFIG[0])
                 elif choice ==4:
@@ -699,6 +1054,7 @@ def menu():
             try:
                 if choice == 1:
                     list_music(CONFIG[0])
+                    
                 elif choice == 2:
                     delete_music(CONFIG[0])
                 elif choice ==3:
@@ -710,7 +1066,7 @@ def menu():
                     send_report()
                 elif choice ==6:
                     just_log('leaving ..')
-                    exit()
+                    sys.exit(0)
             except Exception as e:
                 just_log(f"error ! {e}")
                 if True:
@@ -725,4 +1081,4 @@ while __name__ == "__main__":
         log(f"{Colors.RED}interrupted !{Colors.END}")
         if 'y' in input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Text.get_text('leave')}').lower():
             log(f'{Colors.CYAN}leaving ..{Colors.END}')
-            exit()
+            sys.exit(0)
