@@ -1,14 +1,9 @@
-os-sys
 google-api-python-client
 pydub
 pygame
 requests
 yt-dlp
-platform
 subprocess.run
-random
 translate
-base64
 json
 datetime
-getpass
