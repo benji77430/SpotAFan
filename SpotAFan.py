@@ -218,9 +218,6 @@ class Colors:
 UPLOAD = ""
 CONFIG = []
 
-
-
-
 if system == "Windows" and not os.path.exists(os.path.join(STORAGE,"ffmepg")):
     if "y" in input('do you want to install ffmepg (NEEDED PACKAGE !) (y/N) > ').lower():
         print('installing ffmepg !')
@@ -231,8 +228,6 @@ elif not os.path.exists(os.path.join(STORAGE,"ffmepg")):
     while not "y" in input('press a y when installed > '):
         pass
     open(os.path.join(STORAGE,"ffmepg"),"w").write("installed !")
-
-    
 
 #log module
 def log(log):
@@ -758,7 +753,7 @@ def countdown():
         print(f"{Colors.RED}──╼ ${Colors.END} Volume : {round(float(mixer.music.get_volume()*100))} | {Text.get_text('staying')}{converted_current_time} / {song_duration} | {Colors.CYAN}{Text.get_text("playing")} {music}{Colors.END}",end="\r")
         time.sleep(0.01)
 def list_music(music_path):
-    global STOP, music
+    global STOP, music, OUT
     clear();ascii(random.randint(0,2))
     files = os.listdir(music_path)
     musics = []
@@ -820,7 +815,7 @@ def list_music(music_path):
                     global OUT, STOP
                     OUT = True
                     STOP = True
-
+                OUT = False
                 #countdown(music)
                 keyboard.add_hotkey('o',volume_up)
                 keyboard.add_hotkey('l',volume_down)
