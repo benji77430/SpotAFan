@@ -1,6 +1,7 @@
 os-sys
 google-api-python-client
 pydub
+pygame
 requests
 yt-dlp
 platform
