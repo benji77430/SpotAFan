@@ -41,6 +41,7 @@ try:
     import pygame.mixer as mixer
     import subprocess
     import pygame.mixer as mixer
+    import pygetwindow as gw
     from tkinter import *
     import keyboard
     from tkinter import filedialog
@@ -752,6 +753,37 @@ def countdown():
 
         print(f"{Colors.RED}──╼ ${Colors.END} Volume : {round(float(mixer.music.get_volume()*100))} | {Text.get_text('staying')}{converted_current_time} / {song_duration} | {Colors.CYAN}{Text.get_text("playing")} {music}{Colors.END}",end="\r")
         time.sleep(0.01)
+
+
+# Fonction pour obtenir le nom de la fenêtre active
+def handle_key_event(event):
+    is_paused = False
+    global STOP, OUT
+    if event.name == 'play/pause media':
+        if is_paused != True:
+            mixer.music.pause()
+            is_paused = True
+        else:
+            mixer.music.unpause()
+            is_paused = False
+
+    elif event.name == 'next track':
+        mixer.music.stop()
+        STOP = True
+    elif event.name == 'stop media':
+        mixer.music.stop()
+        STOP = True
+        OUT = True
+    elif event.name == 'volume up':
+        current_volume = mixer.music.get_volume()
+        mixer.music.set_volume(min(current_volume + 0.1, 1.0))
+    elif event.name == 'volume mute':
+        mixer.music.set_volume(0)
+    
+    elif event.name == 'volume down':
+        current_volume = mixer.music.get_volume()
+        mixer.music.set_volume(max(current_volume - 0.1, 0.0))
+        
 def list_music(music_path):
     global STOP, music, OUT
     clear();ascii(random.randint(0,2))
@@ -780,6 +812,7 @@ def list_music(music_path):
                 mixer.init()
                 mixer.music.load(os.path.join(music_path, music))
                 mixer.music.play()
+                keyboard.on_press(handle_key_event)
                 global duration, metadata
                 metadata=audio_metadata.load(os.path.join(music_path, music))
                 song_len = metadata.streaminfo['duration']
@@ -816,15 +849,11 @@ def list_music(music_path):
                     OUT = True
                     STOP = True
                 OUT = False
-                #countdown(music)
-                keyboard.add_hotkey('o',volume_up)
-                keyboard.add_hotkey('l',volume_down)
-                keyboard.add_hotkey('$',stop_music)
-                keyboard.add_hotkey('end',stop_playist)
+                script_window_title = "SpotAFan"
                 count = threading.Thread(target=countdown)
                 count.start()
+                
                 while not STOP:
-                    keyboard.read_key()
                     time.sleep(0.01)
                 if OUT:
                     break
@@ -857,10 +886,13 @@ def play_music(path, name):
         mixer.init()
         mixer.music.load(path)
         mixer.music.play()
+        keyboard.on_press(handle_key_event)
+        
         global duration, metadata
         metadata=audio_metadata.load(path)
         song_len = metadata.streaminfo['duration']
         duration = time.strftime('%M:%S', time.gmtime(song_len))
+        script_window_title = "SpotAFan"
         count = threading.Thread(target=countdown)
         count.start()
         def volume_up():
@@ -886,13 +918,8 @@ def play_music(path, name):
             mixer.music.stop()
             global STOP
             STOP = True
-        keyboard.add_hotkey('o',volume_up)
-        keyboard.add_hotkey('l',volume_down)
-        keyboard.add_hotkey('$',stop_music)
-        count = threading.Thread(target=countdown)
-        count.start()
+        
         while not STOP:
-            keyboard.read_key()
             time.sleep(0.01)
         print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END}                                                                                               \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
         count.join()
