@@ -16,13 +16,12 @@ home_dir = os.path.expanduser("~")
 system = platform.system()
 print(system)
 if system == "Windows":
-    MUSIC_PATH = os.path.join(home_dir, "Music")
-    APPDATA = os.getenv('APPDATA')
-    STORAGE = os.path.join(APPDATA,"SpotAFan")
     print("Windows detected")
+    print('you should use the windows version !')
+    exit()
 elif system == "Darwin":
     MUSIC_PATH = os.path.join(home_dir, "Musique")
-    STORAGE = os.path.join("SpotAFan","config")
+    STORAGE = os.path.join(f"~",".SpotAFan")
     print("MacOS detected")
 
 elif system == "Linux":
@@ -240,8 +239,8 @@ def just_log(log):
 #settings loading and creation
 settings_file = os.path.join(STORAGE,'settings.json')
 if not os.path.exists(settings_file):
-    LANG = input('enter your lang as fr, en etc.. > ')
-    upload = input(Translator(to_lang=LANG).translate('do you want to automaticaly send report when the app crash ? ')+' (y/N) ')
+    LANG = input('enter your lang as fr, en etc.. > ') or 'en'
+    upload = input(Translator(to_lang=LANG).translate('do you want to automaticaly send report when the app crash ? ')+' (y/N) ') or 'y'
     if "y" in upload.lower():
         upload = "ok"
     else:
@@ -250,7 +249,7 @@ if not os.path.exists(settings_file):
     path = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{MUSIC_PATH}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Translator(to_lang=LANG).translate('please enter path to install music (nothing for default music folder)')} ─╼ ')
     if path == "":
         choice = input(f"""
-1) {CONFIG[0]}
+1) {f"/home/{getpass.getuser()}/Musique"}
 
 2) {MUSIC_PATH}
 
@@ -811,8 +810,6 @@ def list_music(music_path):
                 metadata=audio_metadata.load(os.path.join(music_path, music))
                 song_len = metadata.streaminfo['duration']
                 duration = time.strftime('%M:%S', time.gmtime(song_len))
-                count = threading.Thread(target=countdown)
-                count.start()
                 def volume_up():
                     value = mixer.music.get_volume()
                     new_value = value + 0.05
@@ -844,14 +841,10 @@ def list_music(music_path):
                     STOP = True
                 OUT = False
                 script_window_title = "SpotAFan"
-                count = threading.Thread(target=countdown)
-                count.start()
+                countdown()
                 
-                while not STOP:
-                    time.sleep(0.01)
                 if OUT:
                     break
-                count.join()
                 print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END}                                                                                               \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
                 
                     
@@ -887,8 +880,6 @@ def play_music(path, name):
         song_len = metadata.streaminfo['duration']
         duration = time.strftime('%M:%S', time.gmtime(song_len))
         script_window_title = "SpotAFan"
-        count = threading.Thread(target=countdown)
-        count.start()
         def volume_up():
             value = mixer.music.get_volume()
             new_value = value + 0.05
@@ -912,11 +903,10 @@ def play_music(path, name):
             mixer.music.stop()
             global STOP
             STOP = True
-        
+        countdown()
         while not STOP:
             time.sleep(0.01)
         print(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END}                                                                                               \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.YELLOW}{Text.get_text("skipped")}{Colors.END}\n')
-        count.join()
     except KeyboardInterrupt:
         STOP = True
         count.join()
