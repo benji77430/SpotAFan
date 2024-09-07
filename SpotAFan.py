@@ -41,7 +41,6 @@ try:
     import pygame.mixer as mixer
     import subprocess
     import pygame.mixer as mixer
-    import pygetwindow as gw
     from tkinter import *
     import keyboard
     from tkinter import filedialog
