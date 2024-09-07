@@ -40,7 +40,6 @@ try:
     from pydub import AudioSegment
     import pygame.mixer as mixer
     import subprocess
-    import pygame.mixer as mixer
     from tkinter import *
     import keyboard
     from tkinter import filedialog
@@ -79,7 +78,7 @@ simpleaudio
 keybaord
 json
 datetime"""
-        os.system(f'pip install -r {os.path.join(STORAGE,'requirements.txt')}')
+        os.system(f'pip install --break-system-packages -r {os.path.join(STORAGE,'requirements.txt')}')
         os.remove(os.path.join(STORAGE,'requirements.txt'))
         import os
         import socket
@@ -88,7 +87,6 @@ datetime"""
         from pydub import AudioSegment
         import pygame.mixer as mixer
         import subprocess
-        import pygame.mixer as mixer
         from tkinter import *
         import keyboard
         from tkinter import filedialog
@@ -122,60 +120,6 @@ YOUTUBE_API_VERSION = 'v3'
 API_KEY = ""
 #default language
 LANG = 'en'
-
-#ffmpeg install 
-def install_ffmpeg():
-    def download_ffmpeg(url, download_path):
-        print(f"Téléchargement de FFmpeg depuis {url}...")
-        urllib.request.urlretrieve(url, download_path)
-        print("Téléchargement terminé.")
-
-    def extract_zip(zip_path, extract_to):
-        print(f"Extraction de {zip_path}...")
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_to)
-        print("Extraction terminée.")
-
-    def install_ffmpeg(ffmpeg_dir):
-        bin_path = os.path.join(ffmpeg_dir, 'bin')
-        ffmpeg_path = os.path.join(bin_path, 'ffmpeg.exe')
-
-        if os.path.exists(ffmpeg_dir):
-            print("FFmpeg a été installé avec succès.")
-        else:
-            print("L'installation de FFmpeg a échoué.")
-
-        # Ajout de FFmpeg au PATH
-        path_env = os.environ.get('PATH', '')
-        if bin_path not in path_env:
-            print("Ajout de FFmpeg au PATH...")
-            os.environ['PATH'] = f"{bin_path};{path_env}"
-            print("FFmpeg a été ajouté au PATH.")
-        else:
-            print("FFmpeg est déjà dans le PATH.")
-
-    def main():
-        system = platform.system().lower()
-        ffmpeg_url = ""
-
-        if system == "windows":
-            ffmpeg_url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
-        else:
-            print("Ce script ne supporte actuellement que Windows.")
-            return
-
-        download_path = "ffmpeg.zip"
-        download_ffmpeg(ffmpeg_url, download_path)
-
-        extract_to = os.path.join(STORAGE,"ffmpeg")
-        extract_zip(download_path, extract_to)
-
-        install_ffmpeg(extract_to)
-
-        # Nettoyage
-        os.remove(download_path)
-        print("Installation terminée.")
-    main()
 
 
     
@@ -217,18 +161,69 @@ class Colors:
 #configuration variables
 UPLOAD = ""
 CONFIG = []
+import subprocess
+import os
 
-if system == "Windows" and not os.path.exists(os.path.join(STORAGE,"ffmepg")):
-    if "y" in input('do you want to install ffmepg (NEEDED PACKAGE !) (y/N) > ').lower():
-        print('installing ffmepg !')
-        install_ffmpeg()
-    open(os.path.join(STORAGE,"ffmepg"),"w").write("installed !")
-elif not os.path.exists(os.path.join(STORAGE,"ffmepg")):
-    print('PLEASE INSTALL FFMEPG TO USE THIS APP !')
-    while not "y" in input('press a y when installed > '):
-        pass
-    open(os.path.join(STORAGE,"ffmepg"),"w").write("installed !")
+def install(package):
+    try:
+        # Detect the Linux distribution's package manager
+        if os.path.exists('/usr/bin/apt'):
+            # Ubuntu/Debian-based distributions
+            print("Detected APT package manager (Ubuntu/Debian-based).")
+            subprocess.run(['sudo', 'apt', 'update'], check=True)
+            subprocess.run(['sudo', 'apt', 'install', '-y', package], check=True)
 
+        elif os.path.exists('/usr/bin/dnf'):
+            # Fedora-based distributions
+            print("Detected DNF package manager (Fedora-based).")
+            subprocess.run(['sudo', 'dnf', 'install', '-y', package], check=True)
+
+        elif os.path.exists('/usr/bin/yum'):
+            # Older Red Hat/CentOS distributions
+            print("Detected YUM package manager (RHEL/CentOS).")
+            subprocess.run(['sudo', 'yum', 'install', '-y', package], check=True)
+
+        elif os.path.exists('/usr/bin/pacman'):
+            # Arch-based distributions
+            print("Detected Pacman package manager (Arch-based).")
+            subprocess.run(['sudo', 'pacman', '-Syu', package, '--noconfirm'], check=True)
+
+        elif os.path.exists('/usr/bin/zypper'):
+            # openSUSE-based distributions
+            print("Detected Zypper package manager (openSUSE-based).")
+            subprocess.run(['sudo', 'zypper', 'install', '-y', package], check=True)
+
+        else:
+            print("Unsupported package manager or system. Please install ffmpeg manually.")
+        
+        print("FFmpeg installed successfully!")
+
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred during the installation: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+def check_ffmpeg_installed():
+    try:
+        # Run the ffmpeg command to check if it is installed
+        result = subprocess.run(['ffmpeg', '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if result.returncode == 0:
+            print("FFmpeg is installed.")
+            print(result.stdout.decode('utf-8'))
+            return True
+        else:
+            print("FFmpeg is not installed.")
+            return False
+    except FileNotFoundError:
+        print("FFmpeg is not installed on this system.")
+        return False
+
+if not check_ffmpeg_installed():
+    print('FFmepg is not installed !')
+    if 'y' in input('do you want to install it (y/N) ').lower():
+        install('ffmpeg')
+    else:
+        print('please install FFMEPG !')
 #log module
 def log(log):
     print(f'{log}                                                                                                            ',end='\r')
@@ -927,20 +922,6 @@ def play_music(path, name):
         count.join()
     except Exception as e:
         just_log(f"Error playing music in terminal starting in a media player: {str(e)}")
-        try:
-            if system == "Windows":
-                os.startfile(path)
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\n')
-            elif system == "Darwin":  # macOS
-                subprocess.run(["open", path])
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\n')
-            elif system == "Linux":
-                subprocess.run(["xdg-open", path])
-                log(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Colors.CYAN}{Text.get_text("playing")} {name}{Colors.END}\n')
-            else:
-                raise OSError(f"Unsupported operating system: {system}")
-        except Exception as e:
-            log(f"An error occurred while trying to open the file: {e}")
 
 def download_music_with_ytdlp(video_url, download_path):
     try:
