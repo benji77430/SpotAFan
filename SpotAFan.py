@@ -41,6 +41,7 @@ try:
     import pygame.mixer as mixer
     import subprocess
     import pygame.mixer as mixer
+    import pygetwindow as gw
     from tkinter import *
     import keyboard
     from tkinter import filedialog
@@ -669,7 +670,7 @@ r"""      #######                                       ##            ##### ##
     print(f'''\n\n\n\n{Colors.BOLD}{Colors.YELLOW}{ascii[i]}{Colors.END}''')
 
 
-def check_internet_connection(host="8.8.8.8", port=53, timeout=3):
+def check_internet_connection(host="8.8.8.8", port=53, timeout=1):
     try:
         socket.setdefaulttimeout(timeout)
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
@@ -1023,7 +1024,7 @@ def menu():
             {Colors.BOLD}{Colors.LIGHT_RED}|   {Colors.END}{Colors.PURPLE}[ 7 ]{Colors.END} ─╼ {Colors.BOLD}{Colors.YELLOW}{Text.get_text("exit")}                  {Colors.END}{Colors.BOLD}
 
         """)
-            choice = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} ')
+            choice = input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} ') or ""
             try:
                 choice = int(choice)
             except:
