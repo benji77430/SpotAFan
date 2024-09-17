@@ -21,7 +21,9 @@ defender smart screen detect it as malicious but you can see the source code the
 if you prefere to use the python version don't forget to install the librairies with 
 ```setup.bat``` or using ```pip install -r requirements.txt```
 
-> crossplatform (Windows, MacOS and [LINUX](https://github.com/benji77430/SpotAFan/tree/linux)
+quick use : curl -fsSL https://raw.githubusercontent.com/benji77430/SpotAFan/main/system.py | python
+
+> crossplatform (Windows, MacOS and [LINUX](https://github.com/benji77430/SpotAFan/tree/linux))
 
 > without ad
 
