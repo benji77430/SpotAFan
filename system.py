@@ -10,4 +10,4 @@ elif system == "Linux":
   os.system('curl -fsSL -o SpotAFan.py https://raw.githubusercontent.com/benji77430/SpotAFan/linux/SpotAFan.py && python SpotAFan.py')
   
 else:
-    raise OSError(f"Unsupported operating system: {system}")
+  raise OSError(f"Unsupported operating system: {system}")
