@@ -11,7 +11,7 @@ music downloader and listener using google youtube data API V3
 > [!IMPORTANT]  
 > **YOU NEED THE GOOGLE API KEY TO USE THE DOWNLOADER PART OF THE APP**
 
-link of google api : [API DOCS](https://developers.google.com/youtube/v3)
+> link of google api : [API DOCS](https://developers.google.com/youtube/v3)
 
 notice there is auto report function if the app crash for a reason the log file will be send to me automaticaly but you can disable the option 
 
