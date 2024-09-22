@@ -1098,9 +1098,12 @@ def menu():
 
 while __name__ == "__main__":
     try:
-        menu()
-    except KeyboardInterrupt:
-        log(f"{Colors.RED}interrupted !{Colors.END}")
-        if 'y' in input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Text.get_text('leave')}').lower():
-            log(f'{Colors.CYAN}leaving ..{Colors.END}')
-            sys.exit(0)
+        try:
+            menu()
+        except KeyboardInterrupt:
+            log(f"{Colors.RED}interrupted !{Colors.END}")
+            if 'y' in input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Text.get_text('leave')}').lower():
+                log(f'{Colors.CYAN}leaving ..{Colors.END}')
+                sys.exit(0)
+    except EOFError as e:
+        log(f'{Colors.RED}EOF ERROR !{Colors.END}')
