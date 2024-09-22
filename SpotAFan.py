@@ -1107,3 +1107,4 @@ while __name__ == "__main__":
                 sys.exit(0)
     except EOFError as e:
         log(f'{Colors.RED}EOF ERROR !{Colors.END}')
+        input("PRESS A KEY..")
