@@ -11,7 +11,7 @@ DATE : 2024/02/09
 VERSION = 0.4
 import platform
 import os
-
+import time
 home_dir = os.path.expanduser("~")
 system = platform.system()
 print(system)
@@ -23,12 +23,12 @@ if system == "Windows":
 elif system == "Darwin":
     MUSIC_PATH = os.path.join(home_dir, "Musique")
     STORAGE = os.path.join("SpotAFan","config")
-    print("MacOS detected")
+    print("MacOS detected error may appear if it does please tell us on github !")
 
 elif system == "Linux":
-    MUSIC_PATH = os.path.join(home_dir, "Musique")
-    STORAGE = os.path.join("SpotAFan","config") 
-    print("LINUX detected")
+    input('linux detected !\n you should use the LINUX VERSION OF SPOTAFAN !\nhttps://github.com/benji77430/SpotAFan/tree/linux\n press a key to continue ..')
+    time.sleep(1)
+    exit()
 else:
     raise OSError(f"Unsupported operating system: {system}")
 if not os.path.exists(STORAGE):
@@ -49,7 +49,6 @@ try:
     from PIL import ImageTk, Image
     from io import BytesIO
     import os
-    import time
     import sys
     import requests
     import audio_metadata
@@ -97,7 +96,6 @@ datetime"""
         from PIL import ImageTk, Image
         from io import BytesIO
         import os
-        import time
         import sys
         import requests
         import audio_metadata
@@ -1098,13 +1096,9 @@ def menu():
 
 while __name__ == "__main__":
     try:
-        try:
-            menu()
-        except KeyboardInterrupt:
-            log(f"{Colors.RED}interrupted !{Colors.END}")
-            if 'y' in input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Text.get_text('leave')}').lower():
-                log(f'{Colors.CYAN}leaving ..{Colors.END}')
-                sys.exit(0)
-    except EOFError as e:
-        log(f'{Colors.RED}EOF ERROR !{Colors.END}')
-        input("PRESS A KEY..")
+        menu()
+    except KeyboardInterrupt:
+        log(f"{Colors.RED}interrupted !{Colors.END}")
+        if 'y' in input(f'{Colors.CYAN}┌──<[{Colors.RED}{getpass.getuser()}@SpotAFan{Colors.CYAN}]{Colors.END} ~ {Colors.RED}{CONFIG[0]}{Colors.END} \n{Colors.CYAN}└──╼ ${Colors.END} {Text.get_text('leave')}').lower():
+            log(f'{Colors.CYAN}leaving ..{Colors.END}')
+            sys.exit(0)
